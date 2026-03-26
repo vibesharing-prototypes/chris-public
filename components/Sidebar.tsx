@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ALL_MEETINGS, ORG, formatDateShort } from "@/lib/mock-data";
+import { ALL_MEETINGS, ORG, formatDateShort, formatDate } from "@/lib/mock-data";
 
 function MiniCalendar() {
   const [currentMonth, setCurrentMonth] = useState(() => {
@@ -66,37 +66,14 @@ function MiniCalendar() {
   );
 }
 
-function MeetingList({ title, meetings }: { title: string; meetings: typeof ALL_MEETINGS }) {
-  if (meetings.length === 0) return null;
-  return (
-    <div>
-      <h4 className="text-xs font-semibold text-text-secondary uppercase tracking-wide mb-2">{title}</h4>
-      <ul className="space-y-1.5">
-        {meetings.map((m) => (
-          <li key={m.id}>
-            <Link
-              href={`/meetings/${m.id}`}
-              className="block text-xs hover:bg-bg-elevated rounded px-2 py-1.5 transition-colors"
-            >
-              <span className="font-semibold text-text-primary">{m.typeName}</span>
-              <br />
-              <span className="text-text-muted">{formatDateShort(m.date)} at {m.time}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
 export default function Sidebar() {
   const today = new Date().toISOString().slice(0, 10);
 
-  const todayMeetings = ALL_MEETINGS.filter((m) => m.date === today);
   const upcoming = ALL_MEETINGS
-    .filter((m) => m.date > today)
-    .sort((a, b) => a.date.localeCompare(b.date))
-    .slice(0, 3);
+    .filter((m) => m.date >= today)
+    .sort((a, b) => a.date.localeCompare(b.date));
+  const nextMeeting = upcoming[0];
+  const restUpcoming = upcoming.slice(1, 4);
   const recent = ALL_MEETINGS
     .filter((m) => m.date < today)
     .sort((a, b) => b.date.localeCompare(a.date))
@@ -104,20 +81,84 @@ export default function Sidebar() {
 
   return (
     <aside className="w-72 shrink-0 space-y-5">
-      {/* Mini calendar */}
+      {/* Next meeting hero */}
+      {nextMeeting && (
+        <Link
+          href={`/meetings/${nextMeeting.id}`}
+          className="block bg-action rounded-lg p-4 text-text-inverse hover:bg-action-hover transition-colors"
+        >
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-text-inverse/70">Next Meeting</p>
+          <p className="text-base font-bold mt-1 leading-tight">{nextMeeting.typeName}</p>
+          <p className="text-sm mt-1.5 text-text-inverse/90">{formatDate(nextMeeting.date)}</p>
+          <p className="text-sm text-text-inverse/70">{nextMeeting.time} &middot; {nextMeeting.location}</p>
+          {nextMeeting.hasAgenda && (
+            <span className="inline-block mt-2 text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-white/20">
+              Agenda Available
+            </span>
+          )}
+        </Link>
+      )}
+
+      {/* Live stream status */}
+      <div className="bg-bg-surface border border-border rounded-lg px-4 py-3 flex items-center gap-2.5">
+        <span className="w-2 h-2 rounded-full bg-text-disabled shrink-0" />
+        <p className="text-xs text-text-muted">No meetings currently in session</p>
+      </div>
+
+      {/* Calendar */}
       <div className="bg-bg-surface border border-border rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-text-primary mb-3">Schedule of Meetings</h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-text-primary">Schedule</h3>
+          <Link href="/calendar" className="text-[10px] text-link hover:text-link-hover font-medium">
+            Full Calendar
+          </Link>
+        </div>
         <MiniCalendar />
       </div>
 
-      {/* Meeting lists */}
-      <div className="bg-bg-surface border border-border rounded-lg p-4 space-y-4">
-        {todayMeetings.length > 0 && (
-          <MeetingList title="Today's Meetings" meetings={todayMeetings} />
-        )}
-        <MeetingList title="Upcoming Meetings" meetings={upcoming} />
-        <MeetingList title="Recent Meetings" meetings={recent} />
-      </div>
+      {/* Upcoming */}
+      {restUpcoming.length > 0 && (
+        <div className="bg-bg-surface border border-border rounded-lg overflow-hidden">
+          <h4 className="text-xs font-semibold text-text-secondary uppercase tracking-wide px-4 py-2 bg-bg-elevated">
+            Upcoming
+          </h4>
+          <div className="divide-y divide-ui-divider">
+            {restUpcoming.map((m) => (
+              <Link
+                key={m.id}
+                href={`/meetings/${m.id}`}
+                className="block px-4 py-2.5 hover:bg-bg-elevated transition-colors"
+              >
+                <span className="text-xs font-semibold text-text-primary">{m.typeName}</span>
+                <br />
+                <span className="text-[11px] text-text-muted">{formatDateShort(m.date)} at {m.time}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Recent */}
+      {recent.length > 0 && (
+        <div className="bg-bg-surface border border-border rounded-lg overflow-hidden">
+          <h4 className="text-xs font-semibold text-text-secondary uppercase tracking-wide px-4 py-2 bg-bg-elevated">
+            Recent Meetings
+          </h4>
+          <div className="divide-y divide-ui-divider">
+            {recent.map((m) => (
+              <Link
+                key={m.id}
+                href={`/meetings/${m.id}`}
+                className="block px-4 py-2.5 hover:bg-bg-elevated transition-colors"
+              >
+                <span className="text-xs font-semibold text-text-primary">{m.typeName}</span>
+                <br />
+                <span className="text-[11px] text-text-muted">{formatDateShort(m.date)} at {m.time}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Social links */}
       <div className="bg-bg-surface border border-border rounded-lg p-4">

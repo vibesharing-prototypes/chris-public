@@ -68,6 +68,28 @@ export const MEETING_TYPES: MeetingType[] = [
     ],
     meetings: [
       {
+        id: 103,
+        typeId: 1,
+        typeName: "Board of Education",
+        date: "2026-04-27",
+        time: "7:00 PM",
+        location: "GBN Board Room",
+        hasAgenda: false,
+        hasMinutes: false,
+        hasVideo: false,
+      },
+      {
+        id: 102,
+        typeId: 1,
+        typeName: "Board of Education",
+        date: "2026-04-13",
+        time: "7:00 PM",
+        location: "GBN Board Room",
+        hasAgenda: true,
+        hasMinutes: false,
+        hasVideo: false,
+      },
+      {
         id: 101,
         typeId: 1,
         typeName: "Board of Education",
@@ -124,6 +146,17 @@ export const MEETING_TYPES: MeetingType[] = [
       { name: "Skip Shein", title: "Member" },
     ],
     meetings: [
+      {
+        id: 202,
+        typeId: 2,
+        typeName: "Finance Committee",
+        date: "2026-04-14",
+        time: "6:00 PM",
+        location: "GBN Conference Room A",
+        hasAgenda: false,
+        hasMinutes: false,
+        hasVideo: false,
+      },
       {
         id: 201,
         typeId: 2,
